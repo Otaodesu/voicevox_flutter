@@ -68,4 +68,6 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.14.0'
+    // ↑ "自分のFlutterアプリで使用する場合は" これもいる🐘.
 }

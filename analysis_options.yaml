@@ -1,4 +1,9 @@
-include: package:flutter_lints/flutter.yaml
+# The following line changes the maximum number of characters per line. Actually, this line is already over the default limit: 80 characters. 
+# https://dart.dev/tools/dart-format#configuring-formatter-page-width
+formatter:
+  page_width: 120
 
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options
+include: package:flutter_lints/flutter.yaml
+analyzer:
+  exclude:
+    - lib/generated_bindings.dart

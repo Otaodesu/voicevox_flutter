@@ -25,6 +25,7 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
+    namespace 'com.example.voicevox_core'
     compileSdkVersion 31
 
     compileOptions {
@@ -43,8 +44,4 @@ android {
     defaultConfig {
         minSdkVersion 16
     }
-}
-
-dependencies{
-    implementation 'com.microsoft.onnxruntime:onnxruntime-android:1.13.1'
 }
