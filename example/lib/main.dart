@@ -44,7 +44,7 @@ class MyApp extends StatelessWidget {
                   },
                   child: const Text('生成'),
                 ),
-                LinearProgressIndicator(), // スレッドが分離できていると生成中もなめらかに動きます
+                // LinearProgressIndicator(), // 実験中: スレッドが分離できていると生成中もなめらかに動きます
               ],
             ),
           ),
