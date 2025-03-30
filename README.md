@@ -1,6 +1,6 @@
 # voicevox_flutter
 
-Dart:FFIを利用して、VOICEVOX COREをArm64-v8aのAndroidデバイスで動かすFlutterパッケージ。  
+Dart:FFIを利用して、VOICEVOX COREをAndroidデバイスで動かすFlutterパッケージ。  
 [voicevox_core](https://github.com/VOICEVOX/voicevox_core) の 非公式 ラッパーです。
 
 ## 使い方
@@ -8,8 +8,6 @@ Dart:FFIを利用して、VOICEVOX COREをArm64-v8aのAndroidデバイスで動�
 ### Android
 
 - vvmモデルファイルを[ここ](https://github.com/VOICEVOX/voicevox_vvm/tree/main/vvms)からダウンロードし、`your_app/assets/model` フォルダに追加します。
-
-- voicevox_onnxruntimeのAndroid向けライブラリを[ここ](https://github.com/VOICEVOX/onnxruntime-builder/releases/tag/voicevox_onnxruntime-1.17.3)からダウンロードし、`your_app/assets/libvoicevox_onnxruntime.so` フォルダに追加します。
 
 - OpenJTalkのUTF-8辞書を[このへん](https://open-jtalk.sourceforge.net/)からダウンロードし、`your_app/assets/open_jtalk_dic_utf_8-1.11` フォルダに追加します。
 
@@ -24,10 +22,9 @@ flutter:
   assets:
     - assets/open_jtalk_dic_utf_8-1.11/
     - assets/model/
-    - assets/libvoicevox_onnxruntime.so
 ```
 
-~~実際の使用方法は[example](example)を参考にしてください。~~  exampleは今のところ動きません😥
+実際の使用方法は[example](example)を参考にしてください。
 
 ## 高レベルAPI
 VoicevoxFlutterクラスは現在audioQuery, synthesis, tts のみをサポートしています。
@@ -37,11 +34,15 @@ VoicevoxFlutterクラスは現在audioQuery, synthesis, tts のみをサポー�
 
 
 ## ライセンス
-MITライセンスが適用されています。[LICENSE](LICENSE)を参照してください。
+MITライセンスが適用されています。[LICENSE](LICENSE)を参照してください。  
+
 
 ## ファイルの出どころ
-- [libc++_shared.so](android/src/main/jniLibs/arm64-v8a/libc++_shared.so): Android NDKの[ダウンロードページ](https://developer.android.com/ndk/downloads?hl=ja)に転がっていた `android-ndk-r27c-windows.zip` から拾いました。
+- [libc++_shared.so](android/src/main/jniLibs/arm64-v8a/libc++_shared.so):
+  - Android NDKの[ダウンロードページ](https://developer.android.com/ndk/downloads?hl=ja)に転がっていた、 `android-ndk-r27c-windows.zip` から拾いました。
 
-- [libvoicevox_core.so](android/src/main/jniLibs/libvoicevox_core.so): VOICEVOX CORE公式様の[Releases 0.16.0-preview.0](https://github.com/VOICEVOX/voicevox_core/releases/tag/0.16.0-preview.0)からありがたく頂戴いたしました。
+- [libvoicevox_core.so](android/src/main/jniLibs/libvoicevox_core.so), [voicevox_core.h](voicevox_core.h):
+  - VOICEVOX公式様のvoicevox_coreリポジトリにあります、[Releases 0.16.0-preview.0](https://github.com/VOICEVOX/voicevox_core/releases/tag/0.16.0-preview.0)からありがたく頂戴いたしました。  
 
-- [voicevox_core.h](voicevox_core.h): VOICEVOX CORE公式様の[Releases 0.16.0-preview.0](https://github.com/VOICEVOX/voicevox_core/releases/tag/0.16.0-preview.0)からありがたく頂戴いたしました。
+- [libvoicevox_onnxruntime.so](android/src/main/jniLibs/libvoicevox_onnxruntime.so):
+  - VOICEVOX公式様のonnxruntime-builderリポジトリにあります、[voicevox_onnxruntime-1.17.3](https://github.com/VOICEVOX/onnxruntime-builder/releases/tag/voicevox_onnxruntime-1.17.3)からありがたく頂戴いたしました。  

@@ -3,7 +3,7 @@ description: Demonstrates how to use the voicevox_flutter plugin.
 publish_to: 'none'
 
 environment:
-  sdk: '>=2.19.6 <3.0.0'
+  sdk: '>=3.1.4 <4.0.0'
 
 dependencies:
   flutter:
@@ -13,8 +13,9 @@ dependencies:
     path: ../
 
   cupertino_icons: ^1.0.2
-  path_provider: ^2.0.14
-  audioplayers: ^3.0.1
+  path_provider: ^2.1.5
+  path: ^1.8.3 
+  audioplayers: ^6.4.0
 
 dev_dependencies:
   integration_test:
@@ -29,3 +30,4 @@ flutter:
   assets:
   - assets/open_jtalk_dic_utf_8-1.11/
   - assets/model/
+  - assets/styleIdToModelName.json
