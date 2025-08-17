@@ -18,7 +18,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
-  ffigen: ^9.0.1
+  ffigen: ^18.0.0
 
 flutter:
   plugin:
@@ -34,16 +34,17 @@ ffigen:
   description: 'Bindings to voicevox_core_c_api'
   output: 'lib/generated_bindings.dart'
   llvm-path:
-    - 'C:\Program Files\llvm'
+    - 'C:\Program Files\LLVM'
   headers:
     entry-points:
       - 'voicevox_core.h'
     include-directives:
       - 'voicevox_core.h'
   compiler-opts:
-    - '"-IC:\Program Files\LLVM\lib\clang\16\include\"'
+    - '"-IC:\Program Files\LLVM\lib\clang\19\include\"'
 
 
 scripts:
   # bindingクラスを生成する
   ffigen: flutter pub run ffigen
+  

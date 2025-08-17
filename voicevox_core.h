@@ -15,6 +15,18 @@
  *     - `VOICEVOX_LINK_ONNXRUNTIME`: ::voicevox_onnxruntime_init_once が利用可能になる。またこのマクロが存在するなら、このライブラリはONNX Runtimeをロード時動的リンクする。
  *   </dd>
  * </dl>
+
+ * <dl>
+ *   <dt id="voicevox-core-serialization">
+ *     <a href="#voicevox-core-serialization">Serialization</a>
+ *   </dt>
+ *
+ *   <dd>
+ *     JSONの形式はVOICEVOX ENGINEと同じになっている。ただし今後の破壊的変更にて変わる可能性がある。[データのシリアライゼーション]を参照。
+ *
+ *     [データのシリアライゼーション]: https://github.com/VOICEVOX/voicevox_core/blob/main/docs/guide/user/serialization.md
+ *   </dd>
+ * </dl>
  *
  * <dl>
  *   <dt id="voicevox-core-safety">
@@ -66,7 +78,7 @@
 #include <stdint.h>
 #endif // __cplusplus
 
-// #define VOICEVOX_LINK_ONNXRUNTIME
+//#define VOICEVOX_LINK_ONNXRUNTIME
 #define VOICEVOX_LOAD_ONNXRUNTIME
 
 #if !(defined(VOICEVOX_LINK_ONNXRUNTIME) || defined(VOICEVOX_LOAD_ONNXRUNTIME))
@@ -84,9 +96,9 @@
  */
 enum VoicevoxAccelerationMode
 #ifdef __cplusplus
-    : int32_t
+  : int32_t
 #endif // __cplusplus
-{
+ {
   /**
    * 実行環境に合った適切なハードウェアアクセラレーションモードを選択する
    */
@@ -111,9 +123,9 @@ typedef int32_t VoicevoxAccelerationMode;
  */
 enum VoicevoxResultCode
 #ifdef __cplusplus
-    : int32_t
+  : int32_t
 #endif // __cplusplus
-{
+ {
   /**
    * 成功
    */
@@ -226,9 +238,9 @@ typedef int32_t VoicevoxResultCode;
  */
 enum VoicevoxUserDictWordType
 #ifdef __cplusplus
-    : int32_t
+  : int32_t
 #endif // __cplusplus
-{
+ {
   /**
    * 固有名詞。
    */
@@ -328,8 +340,7 @@ typedef struct VoicevoxVoiceModelFile VoicevoxVoiceModelFile;
  *
  * \no-orig-impl{VoicevoxLoadOnnxruntimeOptions}
  */
-typedef struct VoicevoxLoadOnnxruntimeOptions
-{
+typedef struct VoicevoxLoadOnnxruntimeOptions {
   /**
    * ONNX Runtimeのファイル名（モジュール名）もしくはファイルパスを指定する。
    *
@@ -344,8 +355,7 @@ typedef struct VoicevoxLoadOnnxruntimeOptions
  *
  * \no-orig-impl{VoicevoxInitializeOptions}
  */
-typedef struct VoicevoxInitializeOptions
-{
+typedef struct VoicevoxInitializeOptions {
   /**
    * ハードウェアアクセラレーションモード
    */
@@ -378,8 +388,7 @@ typedef uint32_t VoicevoxStyleId;
  *
  * \no-orig-impl{VoicevoxSynthesisOptions}
  */
-typedef struct VoicevoxSynthesisOptions
-{
+typedef struct VoicevoxSynthesisOptions {
   /**
    * 疑問文の調整を有効にする
    */
@@ -391,8 +400,7 @@ typedef struct VoicevoxSynthesisOptions
  *
  * \no-orig-impl{VoicevoxTtsOptions}
  */
-typedef struct VoicevoxTtsOptions
-{
+typedef struct VoicevoxTtsOptions {
   /**
    * 疑問文の調整を有効にする
    */
@@ -404,8 +412,7 @@ typedef struct VoicevoxTtsOptions
  *
  * \orig-impl{VoicevoxUserDictWord}
  */
-typedef struct VoicevoxUserDictWord
-{
+typedef struct VoicevoxUserDictWord {
   /**
    * 表記
    */
@@ -429,8 +436,7 @@ typedef struct VoicevoxUserDictWord
 } VoicevoxUserDictWord;
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif // __cplusplus
 
 #if defined(VOICEVOX_LOAD_ONNXRUNTIME)
@@ -446,10 +452,9 @@ extern "C"
  * \orig-impl{voicevox_get_onnxruntime_lib_versioned_filename}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  const char *
-  voicevox_get_onnxruntime_lib_versioned_filename(void);
+const char *voicevox_get_onnxruntime_lib_versioned_filename(void);
 #endif
 
 #if defined(VOICEVOX_LOAD_ONNXRUNTIME)
@@ -463,10 +468,9 @@ extern "C"
  * \orig-impl{voicevox_get_onnxruntime_lib_unversioned_filename}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  const char *
-  voicevox_get_onnxruntime_lib_unversioned_filename(void);
+const char *voicevox_get_onnxruntime_lib_unversioned_filename(void);
 #endif
 
 #if defined(VOICEVOX_LOAD_ONNXRUNTIME)
@@ -482,10 +486,9 @@ extern "C"
  * \no-orig-impl{voicevox_make_default_load_onnxruntime_options}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  struct VoicevoxLoadOnnxruntimeOptions
-  voicevox_make_default_load_onnxruntime_options(void);
+struct VoicevoxLoadOnnxruntimeOptions voicevox_make_default_load_onnxruntime_options(void);
 #endif
 
 /**
@@ -498,10 +501,9 @@ extern "C"
  * \orig-impl{voicevox_onnxruntime_get}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  const struct VoicevoxOnnxruntime *
-  voicevox_onnxruntime_get(void);
+const struct VoicevoxOnnxruntime *voicevox_onnxruntime_get(void);
 
 #if defined(VOICEVOX_LOAD_ONNXRUNTIME)
 /**
@@ -526,11 +528,10 @@ extern "C"
  * \orig-impl{voicevox_onnxruntime_load_once}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_onnxruntime_load_once(struct VoicevoxLoadOnnxruntimeOptions options,
-                                 const struct VoicevoxOnnxruntime **out_onnxruntime);
+VoicevoxResultCode voicevox_onnxruntime_load_once(struct VoicevoxLoadOnnxruntimeOptions options,
+                                                  const struct VoicevoxOnnxruntime **out_onnxruntime);
 #endif
 
 #if defined(VOICEVOX_LINK_ONNXRUNTIME)
@@ -554,10 +555,9 @@ extern "C"
  * \orig-impl{voicevox_onnxruntime_init_once}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_onnxruntime_init_once(const struct VoicevoxOnnxruntime **out_onnxruntime);
+VoicevoxResultCode voicevox_onnxruntime_init_once(const struct VoicevoxOnnxruntime **out_onnxruntime);
 #endif
 
 /**
@@ -585,11 +585,10 @@ extern "C"
  * \orig-impl{voicevox_open_jtalk_rc_new}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_open_jtalk_rc_new(const char *open_jtalk_dic_dir,
-                             struct OpenJtalkRc **out_open_jtalk);
+VoicevoxResultCode voicevox_open_jtalk_rc_new(const char *open_jtalk_dic_dir,
+                                              struct OpenJtalkRc **out_open_jtalk);
 
 /**
  * OpenJtalkの使うユーザー辞書を設定する。
@@ -602,11 +601,10 @@ extern "C"
  * \orig-impl{voicevox_open_jtalk_rc_use_user_dict}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_open_jtalk_rc_use_user_dict(const struct OpenJtalkRc *open_jtalk,
-                                       const struct VoicevoxUserDict *user_dict);
+VoicevoxResultCode voicevox_open_jtalk_rc_use_user_dict(const struct OpenJtalkRc *open_jtalk,
+                                                        const struct VoicevoxUserDict *user_dict);
 
 /**
  * 日本語のテキストを解析する。
@@ -620,12 +618,11 @@ extern "C"
  * \orig-impl{voicevox_open_jtalk_rc_use_user_dict}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_open_jtalk_rc_analyze(const struct OpenJtalkRc *open_jtalk,
-                                 const char *text,
-                                 char **output_accent_phrases_json);
+VoicevoxResultCode voicevox_open_jtalk_rc_analyze(const struct OpenJtalkRc *open_jtalk,
+                                                  const char *text,
+                                                  char **output_accent_phrases_json);
 
 /**
  * ::OpenJtalkRc を<b>破棄</b>(_destruct_)する。
@@ -645,10 +642,9 @@ extern "C"
  * \no-orig-impl{voicevox_open_jtalk_rc_delete}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  void
-  voicevox_open_jtalk_rc_delete(struct OpenJtalkRc *open_jtalk);
+void voicevox_open_jtalk_rc_delete(struct OpenJtalkRc *open_jtalk);
 
 /**
  * デフォルトの初期化オプションを生成する
@@ -657,10 +653,9 @@ extern "C"
  * \no-orig-impl{voicevox_make_default_initialize_options}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  struct VoicevoxInitializeOptions
-  voicevox_make_default_initialize_options(void);
+struct VoicevoxInitializeOptions voicevox_make_default_initialize_options(void);
 
 /**
  * voicevoxのバージョンを取得する。
@@ -669,10 +664,9 @@ extern "C"
  * \orig-impl{voicevox_get_version}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  const char *
-  voicevox_get_version(void);
+const char *voicevox_get_version(void);
 
 /**
  * AccentPhraseの配列からAudioQueryを作る。
@@ -690,11 +684,10 @@ extern "C"
  * \orig-impl{voicevox_audio_query_create_from_accent_phrases}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_audio_query_create_from_accent_phrases(const char *accent_phrases_json,
-                                                  char **output_audio_query_json);
+VoicevoxResultCode voicevox_audio_query_create_from_accent_phrases(const char *accent_phrases_json,
+                                                                   char **output_audio_query_json);
 
 /**
  * VVMファイルを開く。
@@ -712,11 +705,10 @@ extern "C"
  * \orig-impl{voicevox_voice_model_file_open}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_voice_model_file_open(const char *path,
-                                 struct VoicevoxVoiceModelFile **out_model);
+VoicevoxResultCode voicevox_voice_model_file_open(const char *path,
+                                                  struct VoicevoxVoiceModelFile **out_model);
 
 /**
  * ::VoicevoxVoiceModelFile からIDを取得する。
@@ -731,11 +723,10 @@ extern "C"
  * \orig-impl{voicevox_voice_model_file_id}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  void
-  voicevox_voice_model_file_id(const struct VoicevoxVoiceModelFile *model,
-                               uint8_t (*output_voice_model_id)[16]);
+void voicevox_voice_model_file_id(const struct VoicevoxVoiceModelFile *model,
+                                  uint8_t (*output_voice_model_id)[16]);
 
 /**
  * ::VoicevoxVoiceModelFile からメタ情報を取得する。
@@ -749,10 +740,9 @@ extern "C"
  * \orig-impl{voicevox_voice_model_file_create_metas_json}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  char *
-  voicevox_voice_model_file_create_metas_json(const struct VoicevoxVoiceModelFile *model);
+char *voicevox_voice_model_file_create_metas_json(const struct VoicevoxVoiceModelFile *model);
 
 /**
  * ::VoicevoxVoiceModelFile を、所有しているファイルディスクリプタを閉じた上で<b>破棄</b>(_destruct_)する。ファイルの削除(_delete_)<b>ではない</b>。
@@ -766,10 +756,9 @@ extern "C"
  * \no-orig-impl{voicevox_voice_model_file_delete}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  void
-  voicevox_voice_model_file_delete(struct VoicevoxVoiceModelFile *model);
+void voicevox_voice_model_file_delete(struct VoicevoxVoiceModelFile *model);
 
 /**
  * ::VoicevoxSynthesizer を<b>構築</b>(_construct_)する。
@@ -789,13 +778,12 @@ extern "C"
  * \orig-impl{voicevox_synthesizer_new}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_synthesizer_new(const struct VoicevoxOnnxruntime *onnxruntime,
-                           const struct OpenJtalkRc *open_jtalk,
-                           struct VoicevoxInitializeOptions options,
-                           struct VoicevoxSynthesizer **out_synthesizer);
+VoicevoxResultCode voicevox_synthesizer_new(const struct VoicevoxOnnxruntime *onnxruntime,
+                                            const struct OpenJtalkRc *open_jtalk,
+                                            struct VoicevoxInitializeOptions options,
+                                            struct VoicevoxSynthesizer **out_synthesizer);
 
 /**
  * ::VoicevoxSynthesizer を<b>破棄</b>(_destruct_)する。
@@ -809,10 +797,9 @@ extern "C"
  * \no-orig-impl{voicevox_synthesizer_delete}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  void
-  voicevox_synthesizer_delete(struct VoicevoxSynthesizer *synthesizer);
+void voicevox_synthesizer_delete(struct VoicevoxSynthesizer *synthesizer);
 
 /**
  * 音声モデルを読み込む。
@@ -825,11 +812,10 @@ extern "C"
  * \orig-impl{voicevox_synthesizer_load_voice_model}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_synthesizer_load_voice_model(const struct VoicevoxSynthesizer *synthesizer,
-                                        const struct VoicevoxVoiceModelFile *model);
+VoicevoxResultCode voicevox_synthesizer_load_voice_model(const struct VoicevoxSynthesizer *synthesizer,
+                                                         const struct VoicevoxVoiceModelFile *model);
 
 /**
  * 音声モデルの読み込みを解除する。
@@ -846,11 +832,10 @@ extern "C"
  * \orig-impl{voicevox_synthesizer_unload_voice_model}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_synthesizer_unload_voice_model(const struct VoicevoxSynthesizer *synthesizer,
-                                          VoicevoxVoiceModelId model_id);
+VoicevoxResultCode voicevox_synthesizer_unload_voice_model(const struct VoicevoxSynthesizer *synthesizer,
+                                                           VoicevoxVoiceModelId model_id);
 
 /**
  * ::VoicevoxOnnxruntime のインスタンスを得る。
@@ -862,10 +847,9 @@ extern "C"
  * \orig-impl{voicevox_synthesizer_get_onnxruntime}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  const struct VoicevoxOnnxruntime *
-  voicevox_synthesizer_get_onnxruntime(const struct VoicevoxSynthesizer *synthesizer);
+const struct VoicevoxOnnxruntime *voicevox_synthesizer_get_onnxruntime(const struct VoicevoxSynthesizer *synthesizer);
 
 /**
  * ハードウェアアクセラレーションがGPUモードか判定する。
@@ -877,10 +861,9 @@ extern "C"
  * \orig-impl{voicevox_synthesizer_is_gpu_mode}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  bool
-  voicevox_synthesizer_is_gpu_mode(const struct VoicevoxSynthesizer *synthesizer);
+bool voicevox_synthesizer_is_gpu_mode(const struct VoicevoxSynthesizer *synthesizer);
 
 /**
  * 指定したIDの音声モデルが読み込まれているか判定する。
@@ -897,11 +880,10 @@ extern "C"
  * \orig-impl{voicevox_synthesizer_is_loaded_voice_model}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  bool
-  voicevox_synthesizer_is_loaded_voice_model(const struct VoicevoxSynthesizer *synthesizer,
-                                             VoicevoxVoiceModelId model_id);
+bool voicevox_synthesizer_is_loaded_voice_model(const struct VoicevoxSynthesizer *synthesizer,
+                                                VoicevoxVoiceModelId model_id);
 
 /**
  * 今読み込んでいる音声モデルのメタ情報を、JSONで取得する。
@@ -915,10 +897,9 @@ extern "C"
  * \orig-impl{voicevox_synthesizer_create_metas_json}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  char *
-  voicevox_synthesizer_create_metas_json(const struct VoicevoxSynthesizer *synthesizer);
+char *voicevox_synthesizer_create_metas_json(const struct VoicevoxSynthesizer *synthesizer);
 
 /**
  * ONNX Runtimeとして利用可能なデバイスの情報を、JSONで取得する。
@@ -947,11 +928,10 @@ extern "C"
  * \orig-impl{voicevox_onnxruntime_create_supported_devices_json}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_onnxruntime_create_supported_devices_json(const struct VoicevoxOnnxruntime *onnxruntime,
-                                                     char **output_supported_devices_json);
+VoicevoxResultCode voicevox_onnxruntime_create_supported_devices_json(const struct VoicevoxOnnxruntime *onnxruntime,
+                                                                      char **output_supported_devices_json);
 
 /**
  * AquesTalk風記法から、AudioQueryをJSONとして生成する。
@@ -982,13 +962,12 @@ extern "C"
  * \orig-impl{voicevox_synthesizer_create_audio_query_from_kana}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_synthesizer_create_audio_query_from_kana(const struct VoicevoxSynthesizer *synthesizer,
-                                                    const char *kana,
-                                                    VoicevoxStyleId style_id,
-                                                    char **output_audio_query_json);
+VoicevoxResultCode voicevox_synthesizer_create_audio_query_from_kana(const struct VoicevoxSynthesizer *synthesizer,
+                                                                     const char *kana,
+                                                                     VoicevoxStyleId style_id,
+                                                                     char **output_audio_query_json);
 
 /**
  * 日本語テキストから、AudioQueryをJSONとして生成する。
@@ -1024,13 +1003,12 @@ extern "C"
  * [テキスト音声合成の流れ]: https://github.com/VOICEVOX/voicevox_core/blob/main/docs/guide/user/tts-process.md
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_synthesizer_create_audio_query(const struct VoicevoxSynthesizer *synthesizer,
-                                          const char *text,
-                                          VoicevoxStyleId style_id,
-                                          char **output_audio_query_json);
+VoicevoxResultCode voicevox_synthesizer_create_audio_query(const struct VoicevoxSynthesizer *synthesizer,
+                                                           const char *text,
+                                                           VoicevoxStyleId style_id,
+                                                           char **output_audio_query_json);
 
 /**
  * AquesTalk風記法から、AccentPhrase (アクセント句)の配列をJSON形式で生成する。
@@ -1062,13 +1040,12 @@ extern "C"
  * \orig-impl{voicevox_synthesizer_create_accent_phrases_from_kana}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_synthesizer_create_accent_phrases_from_kana(const struct VoicevoxSynthesizer *synthesizer,
-                                                       const char *kana,
-                                                       VoicevoxStyleId style_id,
-                                                       char **output_accent_phrases_json);
+VoicevoxResultCode voicevox_synthesizer_create_accent_phrases_from_kana(const struct VoicevoxSynthesizer *synthesizer,
+                                                                        const char *kana,
+                                                                        VoicevoxStyleId style_id,
+                                                                        char **output_accent_phrases_json);
 
 /**
  * 日本語テキストから、AccentPhrase (アクセント句)の配列をJSON形式で生成する。
@@ -1104,13 +1081,12 @@ extern "C"
  * [テキスト音声合成の流れ]: https://github.com/VOICEVOX/voicevox_core/blob/main/docs/guide/user/tts-process.md
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_synthesizer_create_accent_phrases(const struct VoicevoxSynthesizer *synthesizer,
-                                             const char *text,
-                                             VoicevoxStyleId style_id,
-                                             char **output_accent_phrases_json);
+VoicevoxResultCode voicevox_synthesizer_create_accent_phrases(const struct VoicevoxSynthesizer *synthesizer,
+                                                              const char *text,
+                                                              VoicevoxStyleId style_id,
+                                                              char **output_accent_phrases_json);
 
 /**
  * AccentPhraseの配列の音高・音素長を、特定の声で生成しなおす。
@@ -1137,13 +1113,12 @@ extern "C"
  * [テキスト音声合成の流れ]: https://github.com/VOICEVOX/voicevox_core/blob/main/docs/guide/user/tts-process.md
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_synthesizer_replace_mora_data(const struct VoicevoxSynthesizer *synthesizer,
-                                         const char *accent_phrases_json,
-                                         VoicevoxStyleId style_id,
-                                         char **output_accent_phrases_json);
+VoicevoxResultCode voicevox_synthesizer_replace_mora_data(const struct VoicevoxSynthesizer *synthesizer,
+                                                          const char *accent_phrases_json,
+                                                          VoicevoxStyleId style_id,
+                                                          char **output_accent_phrases_json);
 
 /**
  * AccentPhraseの配列の音素長を、特定の声で生成しなおす。
@@ -1165,13 +1140,12 @@ extern "C"
  * \orig-impl{voicevox_synthesizer_replace_phoneme_length}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_synthesizer_replace_phoneme_length(const struct VoicevoxSynthesizer *synthesizer,
-                                              const char *accent_phrases_json,
-                                              VoicevoxStyleId style_id,
-                                              char **output_accent_phrases_json);
+VoicevoxResultCode voicevox_synthesizer_replace_phoneme_length(const struct VoicevoxSynthesizer *synthesizer,
+                                                               const char *accent_phrases_json,
+                                                               VoicevoxStyleId style_id,
+                                                               char **output_accent_phrases_json);
 
 /**
  * AccentPhraseの配列の音高を、特定の声で生成しなおす。
@@ -1193,13 +1167,12 @@ extern "C"
  * \orig-impl{voicevox_synthesizer_replace_mora_pitch}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_synthesizer_replace_mora_pitch(const struct VoicevoxSynthesizer *synthesizer,
-                                          const char *accent_phrases_json,
-                                          VoicevoxStyleId style_id,
-                                          char **output_accent_phrases_json);
+VoicevoxResultCode voicevox_synthesizer_replace_mora_pitch(const struct VoicevoxSynthesizer *synthesizer,
+                                                           const char *accent_phrases_json,
+                                                           VoicevoxStyleId style_id,
+                                                           char **output_accent_phrases_json);
 
 /**
  * デフォルトの `voicevox_synthesizer_synthesis` のオプションを生成する
@@ -1208,10 +1181,9 @@ extern "C"
  * \no-orig-impl{voicevox_make_default_synthesis_options}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  struct VoicevoxSynthesisOptions
-  voicevox_make_default_synthesis_options(void);
+struct VoicevoxSynthesisOptions voicevox_make_default_synthesis_options(void);
 
 /**
  * AudioQueryから音声合成を行う。
@@ -1236,15 +1208,14 @@ extern "C"
  * \orig-impl{voicevox_synthesizer_synthesis}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_synthesizer_synthesis(const struct VoicevoxSynthesizer *synthesizer,
-                                 const char *audio_query_json,
-                                 VoicevoxStyleId style_id,
-                                 struct VoicevoxSynthesisOptions options,
-                                 uintptr_t *output_wav_length,
-                                 uint8_t **output_wav);
+VoicevoxResultCode voicevox_synthesizer_synthesis(const struct VoicevoxSynthesizer *synthesizer,
+                                                  const char *audio_query_json,
+                                                  VoicevoxStyleId style_id,
+                                                  struct VoicevoxSynthesisOptions options,
+                                                  uintptr_t *output_wav_length,
+                                                  uint8_t **output_wav);
 
 /**
  * デフォルトのテキスト音声合成オプションを生成する
@@ -1253,10 +1224,9 @@ extern "C"
  * \no-orig-impl{voicevox_make_default_tts_options}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  struct VoicevoxTtsOptions
-  voicevox_make_default_tts_options(void);
+struct VoicevoxTtsOptions voicevox_make_default_tts_options(void);
 
 /**
  * AquesTalk風記法から音声合成を行う。
@@ -1281,15 +1251,14 @@ extern "C"
  * \orig-impl{voicevox_synthesizer_tts_from_kana}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_synthesizer_tts_from_kana(const struct VoicevoxSynthesizer *synthesizer,
-                                     const char *kana,
-                                     VoicevoxStyleId style_id,
-                                     struct VoicevoxTtsOptions options,
-                                     uintptr_t *output_wav_length,
-                                     uint8_t **output_wav);
+VoicevoxResultCode voicevox_synthesizer_tts_from_kana(const struct VoicevoxSynthesizer *synthesizer,
+                                                      const char *kana,
+                                                      VoicevoxStyleId style_id,
+                                                      struct VoicevoxTtsOptions options,
+                                                      uintptr_t *output_wav_length,
+                                                      uint8_t **output_wav);
 
 /**
  * 日本語テキストから音声合成を行う。
@@ -1319,15 +1288,14 @@ extern "C"
  * [テキスト音声合成の流れ]: https://github.com/VOICEVOX/voicevox_core/blob/main/docs/guide/user/tts-process.md
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_synthesizer_tts(const struct VoicevoxSynthesizer *synthesizer,
-                           const char *text,
-                           VoicevoxStyleId style_id,
-                           struct VoicevoxTtsOptions options,
-                           uintptr_t *output_wav_length,
-                           uint8_t **output_wav);
+VoicevoxResultCode voicevox_synthesizer_tts(const struct VoicevoxSynthesizer *synthesizer,
+                                            const char *text,
+                                            VoicevoxStyleId style_id,
+                                            struct VoicevoxTtsOptions options,
+                                            uintptr_t *output_wav_length,
+                                            uint8_t **output_wav);
 
 /**
  * JSON文字列を解放する。
@@ -1355,10 +1323,9 @@ extern "C"
  * \no-orig-impl{voicevox_json_free}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  void
-  voicevox_json_free(char *json);
+void voicevox_json_free(char *json);
 
 /**
  * WAVデータを解放する。
@@ -1376,10 +1343,9 @@ extern "C"
  * \no-orig-impl{voicevox_wav_free}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  void
-  voicevox_wav_free(uint8_t *wav);
+void voicevox_wav_free(uint8_t *wav);
 
 /**
  * 結果コードに対応したメッセージ文字列を取得する。
@@ -1406,10 +1372,9 @@ extern "C"
  * \no-orig-impl{voicevox_error_result_to_message}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  const char *
-  voicevox_error_result_to_message(VoicevoxResultCode result_code);
+const char *voicevox_error_result_to_message(VoicevoxResultCode result_code);
 
 /**
  * ::VoicevoxUserDictWord を最低限のパラメータで作成する。
@@ -1422,12 +1387,11 @@ extern "C"
  * \orig-impl{voicevox_user_dict_word_make}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  struct VoicevoxUserDictWord
-  voicevox_user_dict_word_make(const char *surface,
-                               const char *pronunciation,
-                               uintptr_t accent_type);
+struct VoicevoxUserDictWord voicevox_user_dict_word_make(const char *surface,
+                                                         const char *pronunciation,
+                                                         uintptr_t accent_type);
 
 /**
  * ユーザー辞書をb>構築</b>(_construct_)する。
@@ -1437,10 +1401,9 @@ extern "C"
  * \orig-impl{voicevox_user_dict_new}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  struct VoicevoxUserDict *
-  voicevox_user_dict_new(void);
+struct VoicevoxUserDict *voicevox_user_dict_new(void);
 
 /**
  * ユーザー辞書にファイルを読み込ませる。
@@ -1456,11 +1419,10 @@ extern "C"
  * \orig-impl{voicevox_user_dict_load}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_user_dict_load(const struct VoicevoxUserDict *user_dict,
-                          const char *dict_path);
+VoicevoxResultCode voicevox_user_dict_load(const struct VoicevoxUserDict *user_dict,
+                                           const char *dict_path);
 
 /**
  * ユーザー辞書に単語を追加する。
@@ -1481,12 +1443,11 @@ extern "C"
  * \orig-impl{voicevox_user_dict_add_word}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_user_dict_add_word(const struct VoicevoxUserDict *user_dict,
-                              const struct VoicevoxUserDictWord *word,
-                              uint8_t (*output_word_uuid)[16]);
+VoicevoxResultCode voicevox_user_dict_add_word(const struct VoicevoxUserDict *user_dict,
+                                               const struct VoicevoxUserDictWord *word,
+                                               uint8_t (*output_word_uuid)[16]);
 
 /**
  * ユーザー辞書の単語を更新する。
@@ -1504,12 +1465,11 @@ extern "C"
  * \orig-impl{voicevox_user_dict_update_word}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_user_dict_update_word(const struct VoicevoxUserDict *user_dict,
-                                 const uint8_t (*word_uuid)[16],
-                                 const struct VoicevoxUserDictWord *word);
+VoicevoxResultCode voicevox_user_dict_update_word(const struct VoicevoxUserDict *user_dict,
+                                                  const uint8_t (*word_uuid)[16],
+                                                  const struct VoicevoxUserDictWord *word);
 
 /**
  * ユーザー辞書から単語を削除する。
@@ -1525,11 +1485,10 @@ extern "C"
  * \orig-impl{voicevox_user_dict_remove_word}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_user_dict_remove_word(const struct VoicevoxUserDict *user_dict,
-                                 const uint8_t (*word_uuid)[16]);
+VoicevoxResultCode voicevox_user_dict_remove_word(const struct VoicevoxUserDict *user_dict,
+                                                  const uint8_t (*word_uuid)[16]);
 
 /**
  * ユーザー辞書の単語をJSON形式で出力する。
@@ -1547,11 +1506,10 @@ extern "C"
  * \orig-impl{voicevox_user_dict_to_json}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_user_dict_to_json(const struct VoicevoxUserDict *user_dict,
-                             char **output_json);
+VoicevoxResultCode voicevox_user_dict_to_json(const struct VoicevoxUserDict *user_dict,
+                                              char **output_json);
 
 /**
  * 他のユーザー辞書をインポートする。
@@ -1563,11 +1521,10 @@ extern "C"
  * \orig-impl{voicevox_user_dict_import}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_user_dict_import(const struct VoicevoxUserDict *user_dict,
-                            const struct VoicevoxUserDict *other_dict);
+VoicevoxResultCode voicevox_user_dict_import(const struct VoicevoxUserDict *user_dict,
+                                             const struct VoicevoxUserDict *other_dict);
 
 /**
  * ユーザー辞書をファイルに保存する。
@@ -1582,11 +1539,10 @@ extern "C"
  * \orig-impl{voicevox_user_dict_save}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  VoicevoxResultCode
-  voicevox_user_dict_save(const struct VoicevoxUserDict *user_dict,
-                          const char *path);
+VoicevoxResultCode voicevox_user_dict_save(const struct VoicevoxUserDict *user_dict,
+                                           const char *path);
 
 /**
  * ユーザー辞書を<b>破棄</b>(_destruct_)する。
@@ -1600,13 +1556,12 @@ extern "C"
  * \no-orig-impl{voicevox_user_dict_delete}
  */
 #ifdef _WIN32
-  __declspec(dllimport)
+__declspec(dllimport)
 #endif
-  void
-  voicevox_user_dict_delete(struct VoicevoxUserDict *user_dict);
+void voicevox_user_dict_delete(struct VoicevoxUserDict *user_dict);
 
 #ifdef __cplusplus
-} // extern "C"
-#endif // __cplusplus
+}  // extern "C"
+#endif  // __cplusplus
 
-#endif /* VOICEVOX_CORE_INCLUDE_GUARD */
+#endif  /* VOICEVOX_CORE_INCLUDE_GUARD */

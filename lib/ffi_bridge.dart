@@ -43,7 +43,7 @@ class FFIBridge extends VoicevoxCoreLibrary {
         voicevox_make_default_load_onnxruntime_options(),
         onnxruntimePtrPtr,
       );
-      if (ortLoadResult != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
+      if (VoicevoxResultCode.fromValue(ortLoadResult) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
         throw Exception('VOICEVOX_CORE エラー$ortLoadResult: ${errorcodeToText(ortLoadResult)}');
       }
 
@@ -52,7 +52,7 @@ class FFIBridge extends VoicevoxCoreLibrary {
         openJTalkDictPathPtr.cast<Char>(),
         openJTalkPtrPtr,
       );
-      if (ojtLoadResult != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
+      if (VoicevoxResultCode.fromValue(ojtLoadResult) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
         throw Exception('VOICEVOX_CORE エラー$ojtLoadResult: ${errorcodeToText(ojtLoadResult)}');
       }
 
@@ -60,7 +60,7 @@ class FFIBridge extends VoicevoxCoreLibrary {
       final initializeOptions = voicevox_make_default_initialize_options();
 
       initializeOptions
-        ..acceleration_mode = VoicevoxAccelerationMode.VOICEVOX_ACCELERATION_MODE_CPU
+        ..acceleration_mode = VoicevoxAccelerationMode.VOICEVOX_ACCELERATION_MODE_CPU.value
         ..cpu_num_threads = cpuNumThreads ?? 0;
 
       final voicevoxInitResult = voicevox_synthesizer_new(
@@ -69,7 +69,7 @@ class FFIBridge extends VoicevoxCoreLibrary {
         initializeOptions,
         outputSynthesizerPtrPtr,
       );
-      if (voicevoxInitResult != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
+      if (VoicevoxResultCode.fromValue(voicevoxInitResult) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
         throw Exception('VOICEVOX CORE エラー$voicevoxInitResult: ${errorcodeToText(voicevoxInitResult)}');
       }
 
@@ -97,7 +97,7 @@ class FFIBridge extends VoicevoxCoreLibrary {
         modelPathPtr.cast<Char>(),
         modelPtrPtr,
       );
-      if (modelOpenResult != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
+      if (VoicevoxResultCode.fromValue(modelOpenResult) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
         throw Exception('VOICEVOX_CORE エラー$modelOpenResult: ${errorcodeToText(modelOpenResult)}');
       }
 
@@ -107,7 +107,7 @@ class FFIBridge extends VoicevoxCoreLibrary {
         modelPtrPtr.value,
       );
 
-      if (modelLoadResult != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
+      if (VoicevoxResultCode.fromValue(modelLoadResult) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
         throw Exception('VOICEVOX_CORE エラー$modelLoadResult: ${errorcodeToText(modelLoadResult)}');
       }
       _loadedModelPtrList.add(modelPtrPtr.value);
@@ -135,7 +135,7 @@ class FFIBridge extends VoicevoxCoreLibrary {
         styleId,
         outputPtr,
       );
-      if (resultCode != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
+      if (VoicevoxResultCode.fromValue(resultCode) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
         throw Exception('VOICEVOX_CORE エラー$resultCode: ${errorcodeToText(resultCode)}');
       }
 
@@ -177,7 +177,7 @@ class FFIBridge extends VoicevoxCoreLibrary {
         outputWavLengthPtr, // generated_bindingsを再生成するとなぜかInt(大文字)になったのでEDITした👌
         outputWavPtr,
       );
-      if (resultCode != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
+      if (VoicevoxResultCode.fromValue(resultCode) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
         throw Exception('VOICEVOX_CORE エラー$resultCode: ${errorcodeToText(resultCode)}');
       }
       final wavFile = File(outputPath);

@@ -1,6 +1,6 @@
 # voicevox_flutter
 
-Dart:FFIを利用して、VOICEVOX COREをAndroidデバイスで動かすFlutterパッケージ。  
+Dart:FFIを利用して、VOICEVOX COREをAndroidスマホで動かすためのFlutterパッケージ。  
 [voicevox_core](https://github.com/VOICEVOX/voicevox_core) の 非公式 ラッパーです。
 
 ## 使い方
@@ -42,7 +42,7 @@ MITライセンスが適用されています。[LICENSE](LICENSE)を参照し�
   - Android NDKの[ダウンロードページ](https://developer.android.com/ndk/downloads?hl=ja)に転がっていた、 `android-ndk-r27c-windows.zip` から拾いました。
 
 - [libvoicevox_core.so](android/src/main/jniLibs/libvoicevox_core.so), [voicevox_core.h](voicevox_core.h):
-  - VOICEVOX公式様のvoicevox_coreリポジトリにあります、[Releases 0.16.0-preview.0](https://github.com/VOICEVOX/voicevox_core/releases/tag/0.16.0-preview.0)からありがたく頂戴いたしました。  
+  - VOICEVOX公式様のvoicevox_coreリポジトリにて配布されております、[Releases 0.16.0](https://github.com/VOICEVOX/voicevox_core/releases/tag/0.16.0)から頂戴いたしました。  
 
 - [libvoicevox_onnxruntime.so](android/src/main/jniLibs/libvoicevox_onnxruntime.so):
-  - VOICEVOX公式様のonnxruntime-builderリポジトリにあります、[voicevox_onnxruntime-1.17.3](https://github.com/VOICEVOX/onnxruntime-builder/releases/tag/voicevox_onnxruntime-1.17.3)からありがたく頂戴いたしました。  
+  - VOICEVOX公式様のonnxruntime-builderリポジトリにて配布されております、[voicevox_onnxruntime-1.17.3](https://github.com/VOICEVOX/onnxruntime-builder/releases/tag/voicevox_onnxruntime-1.17.3)から頂戴いたしました。  

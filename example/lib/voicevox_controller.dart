@@ -97,12 +97,6 @@ class VoicevoxFlutterController {
   }
 }
 
-Future<void> _oldcopyFile(String fileName, String assetsDir, String targetDirPath) async {
-  final data = await rootBundle.load('$assetsDir/$fileName'); // 別isolateの中でrootBundleは動かんらしい
-  final bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-  await File('$targetDirPath/$fileName').writeAsBytes(bytes);
-}
-
 /// 指定されたファイル（assets/を想定）をコピーする
 Future<void> _copyFile({required String fileName, required Directory from, required Directory to}) async {
   // とりあえずStringは曖昧かなと思って手を出してみたもののなんも変わってない気がする
