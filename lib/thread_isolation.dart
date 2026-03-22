@@ -6,9 +6,8 @@ import 'package:flutter/services.dart';
 import 'ffi_bridge.dart';
 
 // スレッドを分離してUIをフリーズさせない！もとはservice.dart
-// isolateなるものを操縦して戦う。
 
-class NativeVoiceService {
+class ThreadIsolator {
   late Isolate isolate;
   late SendPort sendPort;
 
@@ -29,6 +28,7 @@ class NativeVoiceService {
               openJTalkDictPath: message['openJTalkDictPath'] as String,
             );
             (message['sendPort'] as SendPort).send(null);
+
           case 'audioQuery':
             (message['sendPort'] as SendPort).send(
               _audioQuery(
@@ -36,6 +36,7 @@ class NativeVoiceService {
                 styleId: message['styleId'] as int,
               ),
             );
+
           case 'synthesis':
             await _synthesis(
               query: message['query'] as String,
@@ -43,11 +44,20 @@ class NativeVoiceService {
               outputPath: message['outputPath'] as String,
             );
             (message['sendPort'] as SendPort).send(null);
+
           case 'loadModel':
             await _loadModel(
               modelPath: message['modelPath'] as String,
             );
             (message['sendPort'] as SendPort).send(null);
+
+          case 'inferPitchAndLength':
+            (message['sendPort'] as SendPort).send(
+              _inferPitchAndLength(
+                accentPhrases: message['accentPhrases'] as String,
+                styleId: message['styleId'] as int,
+              ),
+            );
         }
       });
     }, (receivePort.sendPort, rootToken));
@@ -87,7 +97,7 @@ class NativeVoiceService {
     await receivePort.first;
   }
 
-  /// 新設！モデルファイルを読み込む
+  /// モデルファイルを読み込む
   Future<void> loadModel(File modelFile) async {
     final receivePort = ReceivePort();
     sendPort.send({
@@ -96,6 +106,18 @@ class NativeVoiceService {
       'sendPort': receivePort.sendPort,
     });
     await receivePort.first;
+  }
+
+  /// 新設！AccentPhrasesのpitchとlengthを再生成する
+  Future<String> inferPitchAndLength({required String accentPhrases, required int styleId}) async {
+    final receivePort = ReceivePort();
+    sendPort.send({
+      'method': 'inferPitchAndLength',
+      'accentPhrases': accentPhrases,
+      'styleId': styleId,
+      'sendPort': receivePort.sendPort,
+    });
+    return (await receivePort.first) as String;
   }
 
   void dispose() {
@@ -131,4 +153,8 @@ Future<void> _loadModel({required String modelPath}) async {
   await FFIBridge.instance.loadVoiceModel(
     modelPath: modelPath,
   );
+}
+
+String _inferPitchAndLength({required String accentPhrases, required int styleId}) {
+  return FFIBridge.instance.inferPitchAndLength(accentPhrases: accentPhrases, styleId: styleId);
 }

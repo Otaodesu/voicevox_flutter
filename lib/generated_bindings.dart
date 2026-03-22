@@ -201,6 +201,52 @@ class VoicevoxCoreLibrary {
           int Function(
               ffi.Pointer<ffi.Char>, ffi.Pointer<ffi.Pointer<ffi.Char>>)>();
 
+  int voicevox_audio_query_validate(
+    ffi.Pointer<ffi.Char> audio_query_json,
+  ) {
+    return _voicevox_audio_query_validate(
+      audio_query_json,
+    );
+  }
+
+  late final _voicevox_audio_query_validatePtr = _lookup<
+      ffi.NativeFunction<
+          VoicevoxResultCode$1 Function(
+              ffi.Pointer<ffi.Char>)>>('voicevox_audio_query_validate');
+  late final _voicevox_audio_query_validate = _voicevox_audio_query_validatePtr
+      .asFunction<int Function(ffi.Pointer<ffi.Char>)>();
+
+  int voicevox_accent_phrase_validate(
+    ffi.Pointer<ffi.Char> accent_phrase_json,
+  ) {
+    return _voicevox_accent_phrase_validate(
+      accent_phrase_json,
+    );
+  }
+
+  late final _voicevox_accent_phrase_validatePtr = _lookup<
+      ffi.NativeFunction<
+          VoicevoxResultCode$1 Function(
+              ffi.Pointer<ffi.Char>)>>('voicevox_accent_phrase_validate');
+  late final _voicevox_accent_phrase_validate =
+      _voicevox_accent_phrase_validatePtr
+          .asFunction<int Function(ffi.Pointer<ffi.Char>)>();
+
+  int voicevox_mora_validate(
+    ffi.Pointer<ffi.Char> mora_json,
+  ) {
+    return _voicevox_mora_validate(
+      mora_json,
+    );
+  }
+
+  late final _voicevox_mora_validatePtr = _lookup<
+      ffi.NativeFunction<
+          VoicevoxResultCode$1 Function(
+              ffi.Pointer<ffi.Char>)>>('voicevox_mora_validate');
+  late final _voicevox_mora_validate = _voicevox_mora_validatePtr
+      .asFunction<int Function(ffi.Pointer<ffi.Char>)>();
+
   int voicevox_voice_model_file_open(
     ffi.Pointer<ffi.Char> path,
     ffi.Pointer<ffi.Pointer<VoicevoxVoiceModelFile>> out_model,
@@ -1066,7 +1112,7 @@ enum VoicevoxResultCode {
   /// 音声モデルIDに対する音声モデルが見つからなかった
   VOICEVOX_RESULT_MODEL_NOT_FOUND_ERROR(7),
 
-  /// 推論に失敗した
+  /// 推論に失敗した、もしくは推論結果が異常
   VOICEVOX_RESULT_RUN_MODEL_ERROR(8),
 
   /// 入力テキストの解析に失敗した
@@ -1118,7 +1164,10 @@ enum VoicevoxResultCode {
   VOICEVOX_RESULT_INVALID_USER_DICT_WORD_ERROR(24),
 
   /// UUIDの変換に失敗した
-  VOICEVOX_RESULT_INVALID_UUID_ERROR(25);
+  VOICEVOX_RESULT_INVALID_UUID_ERROR(25),
+
+  /// 無効なMora
+  VOICEVOX_RESULT_INVALID_MORA_ERROR(30);
 
   final int value;
   const VoicevoxResultCode(this.value);
@@ -1149,6 +1198,7 @@ enum VoicevoxResultCode {
         23 => VOICEVOX_RESULT_USE_USER_DICT_ERROR,
         24 => VOICEVOX_RESULT_INVALID_USER_DICT_WORD_ERROR,
         25 => VOICEVOX_RESULT_INVALID_UUID_ERROR,
+        30 => VOICEVOX_RESULT_INVALID_MORA_ERROR,
         _ =>
           throw ArgumentError('Unknown value for VoicevoxResultCode: $value'),
       };
@@ -1233,7 +1283,19 @@ final class VoicevoxInitializeOptions extends ffi.Struct {
 
 /// 音声モデルID。
 ///
+/// ::VoicevoxSynthesizer はこのIDをキーとして、音声モデルのロード・アンロードを行う。
+///
+/// 同じIDを持つ複数のVVMファイルがあるときは、ファイルとして新しい方を常に使うことが推奨される。[VOICEVOX/voicevox_vvm]で管理されているVVMでは、次の方針が取られている。
+///
+/// - VVMに含まれる声が変化せず、軽微な修正のみのときはIDを使い回してリリースする。
+/// - VVMに含まれる声が明確に変化するかもしくは削除されるような実質的な変更のときは、新しいIDを割り振ってリリースする。
+///
+/// これ以外は未定であり、更なるルールについては[VOICEVOX/voicevox_vvm#19]で議論される予定。
+///
 /// \orig-impl{VoicevoxVoiceModelId}
+///
+/// [VOICEVOX/voicevox_vvm]: https://github.com/VOICEVOX/voicevox_vvm
+/// [VOICEVOX/voicevox_vvm#19]: https://github.com/VOICEVOX/voicevox_vvm/issues/19
 typedef VoicevoxVoiceModelId = ffi.Pointer<ffi.Pointer<ffi.Uint8>>;
 
 /// スタイルID。

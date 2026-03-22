@@ -8,7 +8,6 @@ import 'generated_bindings.dart';
 // 参考文献😘: https://github.com/VOICEVOX/voicevox_core/blob/00f891c8664ed302a1b0778ed2eddea4551d6287/example/cpp/unix/simple_tts.cpp
 
 // もともとはこれがvoicevox_flutter.dart
-// ポインタなるものを操縦して戦う。
 
 /// VoicevoxCoreLibraryのラッパークラス
 class FFIBridge extends VoicevoxCoreLibrary {
@@ -24,10 +23,6 @@ class FFIBridge extends VoicevoxCoreLibrary {
   final _loadedModelPtrList = <Pointer<VoicevoxVoiceModelFile>>[];
 
   /// voicevox_flutterを初期化する
-  ///
-  /// [openJTalkDictPath] OpenJtalkの辞書ファイルのパス
-  ///
-  /// [cpuNumThreads] CPUスレッド数
   Future<void> initialize({
     required String openJTalkDictPath,
     int? cpuNumThreads,
@@ -86,8 +81,6 @@ class FFIBridge extends VoicevoxCoreLibrary {
   }
 
   /// モデルを読み込む
-  ///
-  /// [modelPath] vvmファイルのパス
   Future<void> loadVoiceModel({required String modelPath}) async {
     final modelPtrPtr = malloc<Pointer<VoicevoxVoiceModelFile>>();
     final modelPathPtr = modelPath.toNativeUtf8();
@@ -118,10 +111,6 @@ class FFIBridge extends VoicevoxCoreLibrary {
   }
 
   /// テキストから AudioQuery を生成する
-  ///
-  /// [text] テキスト
-  ///
-  /// [styleId] スタイルID
   String textToAudioQuery(
     String text, {
     required int styleId,
@@ -150,12 +139,6 @@ class FFIBridge extends VoicevoxCoreLibrary {
   }
 
   /// AudioQuery から音声合成する
-  ///
-  /// [query] jsonフォーマットされた AudioQuery
-  ///
-  /// [styleId] スタイルID
-  ///
-  /// [outputPath] 出力ファイルパス
   Future<void> audioQueryToWav(
     String query, {
     required int styleId,
@@ -191,6 +174,34 @@ class FFIBridge extends VoicevoxCoreLibrary {
     }
   }
 
+  /// pitchとlengthを再生成する
+  String inferPitchAndLength({
+    required String accentPhrases,
+    required int styleId,
+  }) {
+    final textPtr = accentPhrases.toNativeUtf8();
+    Pointer<Pointer<Char>> outputPtr = malloc<Pointer<Char>>();
+    try {
+      final resultCode = voicevox_synthesizer_replace_mora_data(
+        _synthesizerPtr,
+        textPtr.cast<Char>(),
+        styleId,
+        outputPtr,
+      );
+      if (VoicevoxResultCode.fromValue(resultCode) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
+        throw Exception('VOICEVOX_CORE エラー$resultCode: ${errorcodeToText(resultCode)}');
+      }
+
+      final updatedAccentPhrases = outputPtr.value.cast<Utf8>().toDartString();
+      return updatedAccentPhrases;
+    } catch (_) {
+      rethrow;
+    } finally {
+      calloc.free(textPtr);
+      malloc.free(outputPtr);
+    }
+  }
+
   void dispose() {
     for (final modelPtr in _loadedModelPtrList) {
       voicevox_voice_model_file_delete(modelPtr);
@@ -215,7 +226,7 @@ String errorcodeToText(int code) {
     case 7:
       return '音声モデルIDに対する音声モデルが見つからなかった';
     case 8:
-      return '推論に失敗した';
+      return '推論に失敗した、もしくは推論結果が異常';
     case 11:
       return '入力テキストの解析に失敗した';
     case 12:
@@ -252,6 +263,8 @@ String errorcodeToText(int code) {
       return 'モデルの形式が不正';
     case 29:
       return '推論ライブラリのロードまたは初期化ができなかった';
+    case 30:
+      return '無効なMora';
     default:
       return '不明なエラー';
   }
