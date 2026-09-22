@@ -11,9 +11,29 @@ import 'generated_bindings.dart';
 
 /// VoicevoxCoreLibraryのラッパークラス
 class FFIBridge extends VoicevoxCoreLibrary {
-  static final FFIBridge instance = FFIBridge._(
-    Platform.isAndroid ? DynamicLibrary.open('libvoicevox_core.so') : DynamicLibrary.open('libvoicevox_core.dylib'),
-  );
+  static final FFIBridge instance = FFIBridge._(() {
+    if (Platform.isAndroid) {
+      return DynamicLibrary.open('libvoicevox_core.so');
+    }
+
+    if (Platform.isLinux) {
+      try {
+        DynamicLibrary.open('libvoicevox_onnxruntime.so.1.17.3');
+      } catch (_) {
+        DynamicLibrary.open('libvoicevox_onnxruntime.so');
+      }
+      return DynamicLibrary.open('libvoicevox_core.so');
+    }
+
+    if (Platform.isWindows) {
+      DynamicLibrary.open('voicevox_onnxruntime.dll');
+      return DynamicLibrary.open('voicevox_core.dll');
+    }
+
+    throw UnsupportedError(
+      'このプラットフォームはサポートしていません。 Android、Linux、Windowsのみ動作確認済みです。',
+    );
+  }());
   FFIBridge._(super.dynamicLibrary);
 
   /// VoicevoxSynthesizerのポインタ

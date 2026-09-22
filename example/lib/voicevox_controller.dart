@@ -13,40 +13,11 @@ import 'style_id_to_model_name.dart';
 // パッケージから assets/ にアクセスできないことが判明したのでここでファイルを操作することにした
 
 class VoicevoxFlutterController {
-  late final VoicevoxFlutter _voicevoxFlutter;
-
-  // オリチャー: モデルが必要になってからメモリ上に展開する
-  final List<String> _loadedModelNames = [];
-
-  /// late変数の初期化が完了するまでは足止めしなければならない。Completerを使って通知してみる
-  final _initializationCompleter = Completer();
-
-  /// voicevox_flutterを起動する
-  Future<void> initialize() async {
-    _voicevoxFlutter = VoicevoxFlutter();
-
-    // アセットからアプリケーションディレクトリに`open_jtalk_dict`をコピーする
-    final openJTalkDictDir = Directory('${(await getApplicationSupportDirectory()).path}/open_jtalk_dic_utf_8-1.11');
-    openJTalkDictDir.createSync();
-
-    final openJTalkDictAssetDir = Directory('assets/open_jtalk_dic_utf_8-1.11');
-    final AssetManifest assetManifest = await AssetManifest.loadFromAssetBundle(rootBundle);
-    final List<String> assets = assetManifest.listAssets();
-
-    // open_jtalk_dic_utf_8-1.11ディレクトリ以下のファイルをコピーする。forEachではawaitできてない疑惑があったためfor-inの素直な記述に改めた
-    final openJTalkAssets = assets.where((e) => e.contains(openJTalkDictAssetDir.path)).toList();
-    for (final path in openJTalkAssets) {
-      await _copyFile(fileName: p.basename(path), from: openJTalkDictAssetDir, to: openJTalkDictDir);
-    }
-
-    await _voicevoxFlutter.initialize(openJTalkDictDir: openJTalkDictDir);
-
-    _initializationCompleter.complete(); // しっかり報告する🫡
-  }
+  final VoicevoxFlutter _voicevoxFlutter = VoicevoxFlutter();
 
   /// テキストから AudioQuery を生成する
   Future<String> textToAudioQuery({required String text, required int styleId}) async {
-    await _initializationCompleter.future; // 起動が完了するまで待つ
+    await _initialize();
     await _prepareModel(styleId: styleId);
     final output = await _voicevoxFlutter.textToAudioQuery(text: text, styleId: styleId);
     return output;
@@ -54,27 +25,54 @@ class VoicevoxFlutterController {
 
   /// AudioQuery から音声合成する
   Future<File> audioQueryToWav({required String audioQuery, required int styleId}) async {
-    await _initializationCompleter.future;
+    await _initialize();
     await _prepareModel(styleId: styleId);
     final wavFile = File('${(await getTemporaryDirectory()).path}/${audioQuery.hashCode}.wav');
     await _voicevoxFlutter.audioQueryToWav(audioQuery: audioQuery, styleId: styleId, output: wavFile);
     return wavFile;
   }
 
-  /// pitchとlengthを再生成する。accentを変更したり、区切り位置を変更した場合などに使う
-  Future<String> inferPitchAndLength({required String accentPhrases, required int styleId}) async {
-    await _initializationCompleter.future;
-    await _prepareModel(styleId: styleId);
-    final updatedAccentPhrase = await _voicevoxFlutter.inferPitchAndLength(
-      accentPhrases: accentPhrases,
-      styleId: styleId,
-    );
-    return updatedAccentPhrase;
+  /// 起動が完了するまで足止めしなければならない。Completerを使って通知してみる
+  final _initializationCompleter = Completer();
+  bool _hasInitializeStarted = false;
+
+  /// voicevox_flutterを起動する
+  Future<void> _initialize() async {
+    if (_hasInitializeStarted == true) {
+      await _initializationCompleter.future; // 起動が完了するまで待つ
+      return;
+    }
+
+    _hasInitializeStarted = true;
+
+    // アセットからアプリケーションディレクトリに`open_jtalk_dict`をコピーする
+    final openJTalkDictDir = Directory('${(await getApplicationSupportDirectory()).path}/open_jtalk_dic_utf_8-1.11');
+    openJTalkDictDir.createSync();
+
+    final AssetManifest assetManifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+    final openJTalkAssets = assetManifest
+        .listAssets()
+        .where((eachPath) => eachPath.startsWith('assets/open_jtalk_dic_utf_8-1.11'))
+        .toList();
+
+    for (final eachPath in openJTalkAssets) {
+      final data = await rootBundle.load(eachPath);
+      final bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+      final destFile = File('${openJTalkDictDir.path}/${p.basename(eachPath)}');
+      await destFile.writeAsBytes(bytes);
+    }
+
+    await _voicevoxFlutter.initialize(openJTalkDictDir: openJTalkDictDir);
+
+    _initializationCompleter.complete(); // しっかり報告する🫡
   }
+
+  // オリチャー: モデルが必要になってからメモリ上に展開する
+  final List<String> _loadedModelNames = [];
 
   /// 必要なVVMモデルを探してロードする関数。モデルが必要になる前に実行すること
   Future<void> _prepareModel({required int styleId}) async {
-    await _initializationCompleter.future; // 二重になる説あるが一応置いとく
+    await _initialize();
     final requiredModelName = styleIdToModelName[styleId];
     if (requiredModelName == null) {
       throw Exception('このstyleId: $styleIdに対応するvvmファイルがどれなのかわかりません😫 style_id_to_model_name.dartを更新してください。');
@@ -87,25 +85,23 @@ class VoicevoxFlutterController {
     debugPrint('${DateTime.now()}😸VVMモデル$requiredModelNameが必要になったので読み込みます');
 
     // アセットからアプリケーションディレクトリに`model`をコピーする
-    final modelAssetDir = Directory('assets/model');
+    final data = await rootBundle.load('assets/model/$requiredModelName');
+    final bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
+
     final modelDir = Directory('${(await getTemporaryDirectory()).path}/model');
     await modelDir.create();
-    await _copyFile(fileName: requiredModelName, from: modelAssetDir, to: modelDir);
 
-    await _voicevoxFlutter.loadVoiceModel(modelFile: File('${modelDir.path}/$requiredModelName'));
+    final modelFile = File('${modelDir.path}/$requiredModelName');
 
-    debugPrint('${DateTime.now()}😹VVMモデル${modelDir.path}/$requiredModelNameを読み込みました');
+    await modelFile.writeAsBytes(bytes);
+
+    await _voicevoxFlutter.loadVoiceModel(modelFile: modelFile);
+
+    debugPrint('${DateTime.now()}😹VVMモデル${modelFile.path}を読み込みました');
     _loadedModelNames.add(requiredModelName);
   }
 
   void dispose() {
     _voicevoxFlutter.dispose();
   }
-}
-
-/// 指定されたファイル（assets/を想定）をコピーする
-Future<void> _copyFile({required String fileName, required Directory from, required Directory to}) async {
-  final data = await rootBundle.load('${from.path}/$fileName'); // 別isolateの中でrootBundleは動かんらしい
-  final bytes = data.buffer.asUint8List(data.offsetInBytes, data.lengthInBytes);
-  await File('${to.path}/$fileName').writeAsBytes(bytes);
 }

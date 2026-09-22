@@ -28,6 +28,10 @@ flutter:
         pluginClass: VoicevoxFlutterPlugin
       ios:
         pluginClass: VoicevoxFlutterPlugin
+      linux:
+        pluginClass: VoicevoxFlutterPlugin
+      windows: 
+        pluginClass: VoicevoxFlutterPlugin
 
 ffigen:
   name: 'VoicevoxCoreLibrary'

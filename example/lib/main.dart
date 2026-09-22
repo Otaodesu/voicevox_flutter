@@ -6,7 +6,6 @@ import 'voicevox_controller.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final voicevox = VoicevoxFlutterController();
-  await voicevox.initialize();
   final audioPlayer = AudioPlayer();
   runApp(MyApp(voicevox, audioPlayer));
 }
