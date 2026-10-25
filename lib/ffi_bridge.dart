@@ -1,5 +1,6 @@
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:ffi/ffi.dart';
 
@@ -18,7 +19,7 @@ class FFIBridge extends VoicevoxCoreLibrary {
 
     if (Platform.isLinux) {
       try {
-        DynamicLibrary.open('libvoicevox_onnxruntime.so.1.17.3');
+        DynamicLibrary.open('libvoicevox_onnxruntime.so.1.23.2');
       } catch (_) {
         DynamicLibrary.open('libvoicevox_onnxruntime.so');
       }
@@ -59,7 +60,7 @@ class FFIBridge extends VoicevoxCoreLibrary {
         onnxruntimePtrPtr,
       );
       if (VoicevoxResultCode.fromValue(ortLoadResult) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
-        throw Exception('VOICEVOX_CORE エラー$ortLoadResult: ${errorcodeToText(ortLoadResult)}');
+        throw Exception('VOICEVOX_CORE エラー$ortLoadResult: ${_errorcodeToText(ortLoadResult)}');
       }
 
       // OpenJTalkを準備する
@@ -68,7 +69,7 @@ class FFIBridge extends VoicevoxCoreLibrary {
         openJTalkPtrPtr,
       );
       if (VoicevoxResultCode.fromValue(ojtLoadResult) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
-        throw Exception('VOICEVOX_CORE エラー$ojtLoadResult: ${errorcodeToText(ojtLoadResult)}');
+        throw Exception('VOICEVOX_CORE エラー$ojtLoadResult: ${_errorcodeToText(ojtLoadResult)}');
       }
 
       // VOICEVOX_COREを起動する！！
@@ -85,7 +86,7 @@ class FFIBridge extends VoicevoxCoreLibrary {
         outputSynthesizerPtrPtr,
       );
       if (VoicevoxResultCode.fromValue(voicevoxInitResult) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
-        throw Exception('VOICEVOX CORE エラー$voicevoxInitResult: ${errorcodeToText(voicevoxInitResult)}');
+        throw Exception('VOICEVOX CORE エラー$voicevoxInitResult: ${_errorcodeToText(voicevoxInitResult)}');
       }
 
       _synthesizerPtr = outputSynthesizerPtrPtr.value;
@@ -111,17 +112,16 @@ class FFIBridge extends VoicevoxCoreLibrary {
         modelPtrPtr,
       );
       if (VoicevoxResultCode.fromValue(modelOpenResult) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
-        throw Exception('VOICEVOX_CORE エラー$modelOpenResult: ${errorcodeToText(modelOpenResult)}');
+        throw Exception('VOICEVOX_CORE エラー$modelOpenResult: ${_errorcodeToText(modelOpenResult)}');
       }
 
+      final loadOptions = voicevox_make_default_load_voice_model_options();
+
       // モデルファイルをloadしていく… openで手札に取って、loadで場に出す的な？カードゲーム的思想やな
-      final modelLoadResult = voicevox_synthesizer_load_voice_model(
-        _synthesizerPtr,
-        modelPtrPtr.value,
-      );
+      final modelLoadResult = voicevox_synthesizer_load_voice_model(_synthesizerPtr, modelPtrPtr.value, loadOptions);
 
       if (VoicevoxResultCode.fromValue(modelLoadResult) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
-        throw Exception('VOICEVOX_CORE エラー$modelLoadResult: ${errorcodeToText(modelLoadResult)}');
+        throw Exception('VOICEVOX_CORE エラー$modelLoadResult: ${_errorcodeToText(modelLoadResult)}');
       }
       _loadedModelPtrList.add(modelPtrPtr.value);
     } finally {
@@ -145,7 +145,7 @@ class FFIBridge extends VoicevoxCoreLibrary {
         outputPtr,
       );
       if (VoicevoxResultCode.fromValue(resultCode) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
-        throw Exception('VOICEVOX_CORE エラー$resultCode: ${errorcodeToText(resultCode)}');
+        throw Exception('VOICEVOX_CORE エラー$resultCode: ${_errorcodeToText(resultCode)}');
       }
 
       final query = outputPtr.value.cast<Utf8>().toDartString();
@@ -181,7 +181,7 @@ class FFIBridge extends VoicevoxCoreLibrary {
         outputWavPtr,
       );
       if (VoicevoxResultCode.fromValue(resultCode) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
-        throw Exception('VOICEVOX_CORE エラー$resultCode: ${errorcodeToText(resultCode)}');
+        throw Exception('VOICEVOX_CORE エラー$resultCode: ${_errorcodeToText(resultCode)}');
       }
       final wavFile = File(outputPath);
       wavFile.writeAsBytesSync(outputWavPtr.value.asTypedList(outputWavLengthPtr.value));
@@ -191,6 +191,119 @@ class FFIBridge extends VoicevoxCoreLibrary {
       malloc
         ..free(outputWavLengthPtr)
         ..free(outputWavPtr);
+    }
+  }
+
+  /// AudioQuery から PCM データをストリーミング生成する
+  Stream<Uint8List> audioQueryToPCMStream({
+    required String query,
+    required int styleId,
+    required Duration start,
+    required Duration? end,
+    required Duration chunkDuration,
+    required bool Function() isCancelled,
+    bool enableInterrogativeUpspeak = true,
+  }) async* {
+    final synthesisOptions = voicevox_make_default_synthesis_options();
+    synthesisOptions.enable_interrogative_upspeak = enableInterrogativeUpspeak;
+
+    final queryPtr = query.toNativeUtf8();
+    final audioFeaturePtrPtr = malloc<Pointer<VoicevoxAudioFeature>>();
+    Pointer<VoicevoxAudioFeature>? audioFeature;
+
+    try {
+      final featureCreateResult = voicevox_synthesizer_create_audio_feature(
+        _synthesizerPtr,
+        queryPtr.cast<Char>(),
+        styleId,
+        synthesisOptions,
+        audioFeaturePtrPtr,
+      );
+      if (VoicevoxResultCode.fromValue(featureCreateResult) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
+        throw Exception('VOICEVOX_CORE エラー$featureCreateResult: ${_errorcodeToText(featureCreateResult)}');
+      }
+      audioFeature = audioFeaturePtrPtr.value;
+
+      final totalFrames = voicevox_audio_feature_len(audioFeature);
+      final totalSeconds = totalFrames / VOICEVOX_FRAME_RATE;
+      final totalDuration = Duration(microseconds: (totalSeconds * 1000000).round());
+
+      if (start > totalDuration) {
+        throw ArgumentError.value(start, 'start', 'startが音声の総時間($totalDuration)を超えています');
+      }
+      if (end != null && end > totalDuration) {
+        throw ArgumentError.value(end, 'end', 'endが音声の総時間($totalDuration)を超えています');
+      }
+
+      final startFrames = (start.inMicroseconds * VOICEVOX_FRAME_RATE / 1000000).round();
+      final endFrames = end != null ? (end.inMicroseconds * VOICEVOX_FRAME_RATE / 1000000).round() : totalFrames;
+
+      int chunkFrames = (chunkDuration.inMicroseconds * VOICEVOX_FRAME_RATE / 1000000).round();
+      if (chunkFrames <= 0) {
+        chunkFrames = 1;
+      }
+
+      final outputPcmLengthPtr = malloc<UintPtr>();
+      final outputPcmPtr = malloc<Pointer<Uint8>>();
+      final slicePtr = malloc<VoicevoxAudioFeatureSlice>();
+
+      try {
+        int currentFrame = startFrames;
+        while (currentFrame < endFrames) {
+          if (isCancelled()) {
+            break;
+          }
+
+          final nextFrame = (currentFrame + chunkFrames).clamp(currentFrame, endFrames);
+          final sliceResult = voicevox_audio_feature_slice(
+            audioFeature,
+            currentFrame,
+            nextFrame,
+            false,
+            false,
+            false,
+            slicePtr,
+          );
+
+          if (VoicevoxResultCode.fromValue(sliceResult) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
+            throw Exception('VOICEVOX_CORE エラー$sliceResult: ${_errorcodeToText(sliceResult)}');
+          }
+
+          final renderResult = voicevox_synthesizer_render(
+            _synthesizerPtr,
+            slicePtr.ref,
+            outputPcmLengthPtr,
+            outputPcmPtr,
+          );
+
+          if (VoicevoxResultCode.fromValue(renderResult) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
+            throw Exception('VOICEVOX_CORE エラー$renderResult: ${_errorcodeToText(renderResult)}');
+          }
+
+          final length = outputPcmLengthPtr.value;
+          if (length > 0) {
+            final pcmData = Uint8List.fromList(outputPcmPtr.value.asTypedList(length));
+            voicevox_bytes_free(outputPcmPtr.value);
+            yield pcmData;
+          }
+
+          currentFrame = nextFrame;
+
+          // Isolateのイベントループに一瞬制御を戻し、キャンセル等のメッセージを処理できるようにする
+          await Future<void>.delayed(Duration.zero);
+        }
+      } finally {
+        malloc
+          ..free(outputPcmLengthPtr)
+          ..free(outputPcmPtr)
+          ..free(slicePtr);
+      }
+    } finally {
+      calloc.free(queryPtr);
+      if (audioFeature != null) {
+        voicevox_audio_feature_delete(audioFeature);
+      }
+      malloc.free(audioFeaturePtrPtr);
     }
   }
 
@@ -209,7 +322,7 @@ class FFIBridge extends VoicevoxCoreLibrary {
         outputPtr,
       );
       if (VoicevoxResultCode.fromValue(resultCode) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
-        throw Exception('VOICEVOX_CORE エラー$resultCode: ${errorcodeToText(resultCode)}');
+        throw Exception('VOICEVOX_CORE エラー$resultCode: ${_errorcodeToText(resultCode)}');
       }
 
       final updatedAccentPhrases = outputPtr.value.cast<Utf8>().toDartString();
@@ -222,6 +335,44 @@ class FFIBridge extends VoicevoxCoreLibrary {
     }
   }
 
+  /// AudioQuery から音声の長さを取得する
+  Duration audioQueryToAudioDuration(
+    String query, {
+    required int styleId,
+    bool enableInterrogativeUpspeak = true,
+  }) {
+    final synthesisOptions = voicevox_make_default_synthesis_options();
+    synthesisOptions.enable_interrogative_upspeak = enableInterrogativeUpspeak;
+
+    final queryPtr = query.toNativeUtf8();
+    final audioFeaturePtrPtr = malloc<Pointer<VoicevoxAudioFeature>>();
+    Pointer<VoicevoxAudioFeature>? audioFeature;
+
+    try {
+      final featureCreateResult = voicevox_synthesizer_create_audio_feature(
+        _synthesizerPtr,
+        queryPtr.cast<Char>(),
+        styleId,
+        synthesisOptions,
+        audioFeaturePtrPtr,
+      );
+      if (VoicevoxResultCode.fromValue(featureCreateResult) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
+        throw Exception('VOICEVOX_CORE エラー$featureCreateResult: ${_errorcodeToText(featureCreateResult)}');
+      }
+      audioFeature = audioFeaturePtrPtr.value;
+
+      final totalFrames = voicevox_audio_feature_len(audioFeature);
+      final totalSeconds = totalFrames / VOICEVOX_FRAME_RATE;
+      return Duration(microseconds: (totalSeconds * 1000000).round());
+    } finally {
+      calloc.free(queryPtr);
+      if (audioFeature != null) {
+        voicevox_audio_feature_delete(audioFeature);
+      }
+      malloc.free(audioFeaturePtrPtr);
+    }
+  }
+
   void dispose() {
     for (final modelPtr in _loadedModelPtrList) {
       voicevox_voice_model_file_delete(modelPtr);
@@ -231,7 +382,7 @@ class FFIBridge extends VoicevoxCoreLibrary {
 }
 
 /// VoicevoxCoreLibraryのエラーコードをテキストに変換する
-String errorcodeToText(int code) {
+String _errorcodeToText(int code) {
   switch (code) {
     case 0:
       return '成功';
@@ -285,6 +436,22 @@ String errorcodeToText(int code) {
       return '推論ライブラリのロードまたは初期化ができなかった';
     case 30:
       return '無効なMora';
+    case 31:
+      return '無効な楽譜';
+    case 32:
+      return '無効なノート';
+    case 33:
+      return '無効なFrameAudioQuery';
+    case 34:
+      return '無効なFramePhoneme';
+    case 35:
+      return '楽譜とFrameAudioQueryの組み合わせが不正';
+    case 36:
+      return 'AudioFeatureSliceをスライスするときの始端が大きすぎた';
+    case 37:
+      return 'AudioFeatureSliceをスライスするときの終端が大きすぎた';
+    case 38:
+      return 'AudioFeatureSliceをスライスするときに始端が終端を超えていた';
     default:
       return '不明なエラー';
   }

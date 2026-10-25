@@ -31,7 +31,7 @@ class VoicevoxFlutter {
     await _isolatedVoicevox.loadModel(modelFile);
   }
 
-  /// テキストから AudioQuery を生成する
+  /// テキストからAudioQueryを生成する
   ///
   /// [text] テキスト
   ///
@@ -41,9 +41,9 @@ class VoicevoxFlutter {
     return await _isolatedVoicevox.audioQuery(text, styleId);
   }
 
-  /// AudioQuery から音声を生成する
+  /// AudioQueryから音声を生成する
   ///
-  /// [audioQuery] jsonフォーマットされた AudioQuery
+  /// [audioQuery] jsonフォーマットされたAudioQuery
   ///
   /// [styleId] スタイルID
   ///
@@ -57,9 +57,83 @@ class VoicevoxFlutter {
     debugPrint('⭐${watch.elapsedMilliseconds}msで生成して${output.path}に保存しました');
   }
 
-  /// pitchとlengthを再生成する。accentを変更したり、単語の区切り位置を変更した場合などに使う
+  /// AudioQueryから音声の長さを取得する
   ///
-  /// VOICEVOX Engineのエンドポイント "mora_data" と同じ機能。のはず。
+  /// [audioQuery] jsonフォーマットされたAudioQuery
+  ///
+  /// [styleId] スタイルID
+  Future<Duration> audioQueryToAudioDuration({
+    required String audioQuery,
+    required int styleId,
+  }) async {
+    await _initializationCompleter.future;
+    return await _isolatedVoicevox.audioQueryToAudioDuration(
+      query: audioQuery,
+      styleId: styleId,
+    );
+  }
+
+  /// AudioQueryから音声をストリーミング生成する
+  ///
+  /// - RealTimeFactorが1未満の（1秒間の音声を1秒未満で生成できる）高速なデバイスでは、1つめのチャンクが返ったらすぐに再生を開始できます。
+  /// - streamSubscription.cancel()で生成をキャンセルできます。streamSubscription.pause()は非対応です。
+  ///
+  /// [audioQuery] jsonフォーマットされたAudioQuery
+  ///
+  /// [styleId] スタイルID
+  ///
+  /// [start] 開始位置
+  ///
+  /// [end] 終了位置。nullの場合は末尾まで生成します。
+  ///
+  /// [chunkDuration] チャンクあたりの長さ。短くすると1つめのチャンクがより速く返りますが、オーバーヘッドが大きくなります。
+  Stream<Uint8List> audioQueryToPCMStream({
+    required String audioQuery,
+    required int styleId,
+    Duration start = Duration.zero,
+    Duration? end,
+    Duration chunkDuration = const Duration(milliseconds: 300),
+  }) {
+    if (start < Duration.zero) {
+      throw ArgumentError.value(start, 'start', 'startは0以上である必要があります');
+    }
+    if (chunkDuration <= Duration.zero) {
+      throw ArgumentError.value(chunkDuration, 'chunkDuration', 'chunkDurationは0より大きい必要があります');
+    }
+    if (end != null && end < start) {
+      throw ArgumentError.value(end, 'end', 'endはstart以上である必要があります');
+    }
+
+    return _audioQueryToPCMStream(
+      audioQuery: audioQuery,
+      styleId: styleId,
+      start: start,
+      end: end,
+      chunkDuration: chunkDuration,
+    );
+  }
+
+  Stream<Uint8List> _audioQueryToPCMStream({
+    required String audioQuery,
+    required int styleId,
+    required Duration start,
+    required Duration? end,
+    required Duration chunkDuration,
+  }) async* {
+    await _initializationCompleter.future;
+    yield* _isolatedVoicevox.audioQueryToPCMStream(
+      query: audioQuery,
+      styleId: styleId,
+      start: start,
+      end: end,
+      chunkDuration: chunkDuration,
+    );
+  }
+
+  /// pitchとlengthを再生成する
+  /// 
+  /// - accent位置を変更したり、単語の区切りを変更した場合などに使う
+  /// - VOICEVOX Engineのエンドポイント "mora_data" と同じ機能。のはず。
   ///
   /// [accentPhrases] AccentPhraseのリスト
   ///

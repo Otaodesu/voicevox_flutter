@@ -1,5 +1,5 @@
 # voicevox_flutter  
-[VOICEVOX CORE](https://github.com/VOICEVOX/voicevox_core) 0.16.3 の非公式ラッパーです。  
+[VOICEVOX CORE](https://github.com/VOICEVOX/voicevox_core) 0.17.1 の非公式ラッパーです。  
 Android/Windows/Linuxに対応しています。
 
 <img src="screen_shot/example_android.png" width="320px"/>  

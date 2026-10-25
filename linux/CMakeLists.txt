@@ -20,6 +20,6 @@ target_link_libraries(${PLUGIN_NAME} PRIVATE flutter)
 set(voicevox_flutter_bundled_libraries
   "${CMAKE_CURRENT_SOURCE_DIR}/blobs/x86_64/libvoicevox_core.so"
   "${CMAKE_CURRENT_SOURCE_DIR}/blobs/x86_64/libvoicevox_onnxruntime.so"
-  "${CMAKE_CURRENT_SOURCE_DIR}/blobs/x86_64/libvoicevox_onnxruntime.so.1.17.3"
+  "${CMAKE_CURRENT_SOURCE_DIR}/blobs/x86_64/libvoicevox_onnxruntime.so.1.23.2"
   PARENT_SCOPE
 )
