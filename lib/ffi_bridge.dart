@@ -338,38 +338,30 @@ class FFIBridge extends VoicevoxCoreLibrary {
   /// AudioQuery から音声の長さを取得する
   Duration audioQueryToAudioDuration(
     String query, {
-    required int styleId,
     bool enableInterrogativeUpspeak = true,
   }) {
-    final synthesisOptions = voicevox_make_default_synthesis_options();
-    synthesisOptions.enable_interrogative_upspeak = enableInterrogativeUpspeak;
+    final options = voicevox_make_default_audio_query_frame_length_options();
+    options.enable_interrogative_upspeak = enableInterrogativeUpspeak;
 
     final queryPtr = query.toNativeUtf8();
-    final audioFeaturePtrPtr = malloc<Pointer<VoicevoxAudioFeature>>();
-    Pointer<VoicevoxAudioFeature>? audioFeature;
+    final outputFrameLengthPtr = malloc<UintPtr>();
 
     try {
-      final featureCreateResult = voicevox_synthesizer_create_audio_feature(
-        _synthesizerPtr,
+      final result = voicevox_audio_query_frame_length(
         queryPtr.cast<Char>(),
-        styleId,
-        synthesisOptions,
-        audioFeaturePtrPtr,
+        options,
+        outputFrameLengthPtr,
       );
-      if (VoicevoxResultCode.fromValue(featureCreateResult) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
-        throw Exception('VOICEVOX_CORE エラー$featureCreateResult: ${_errorcodeToText(featureCreateResult)}');
+      if (VoicevoxResultCode.fromValue(result) != VoicevoxResultCode.VOICEVOX_RESULT_OK) {
+        throw Exception('VOICEVOX_CORE エラー$result: ${_errorcodeToText(result)}');
       }
-      audioFeature = audioFeaturePtrPtr.value;
 
-      final totalFrames = voicevox_audio_feature_len(audioFeature);
+      final totalFrames = outputFrameLengthPtr.value;
       final totalSeconds = totalFrames / VOICEVOX_FRAME_RATE;
       return Duration(microseconds: (totalSeconds * 1000000).round());
     } finally {
       calloc.free(queryPtr);
-      if (audioFeature != null) {
-        voicevox_audio_feature_delete(audioFeature);
-      }
-      malloc.free(audioFeaturePtrPtr);
+      malloc.free(outputFrameLengthPtr);
     }
   }
 

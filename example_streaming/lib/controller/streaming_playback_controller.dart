@@ -140,7 +140,6 @@ class StreamingPlaybackController extends ChangeNotifier {
       // 2. 音声の総尺を取得 (シークバーの最大値として使用)
       _totalDuration = await _voicevox.audioQueryToAudioDuration(
         audioQuery: audioQuery,
-        styleId: styleId,
       );
 
       // 開始位置が総尺を超えている場合のガード

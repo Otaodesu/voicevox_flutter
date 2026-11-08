@@ -67,7 +67,6 @@ class ThreadIsolator {
             (message['sendPort'] as SendPort).send(
               _audioQueryToAudioDuration(
                 query: message['query'] as String,
-                styleId: message['styleId'] as int,
                 enableInterrogativeUpspeak: message['enableInterrogativeUpspeak'] as bool? ?? true,
               ),
             );
@@ -179,14 +178,12 @@ class ThreadIsolator {
   /// AudioQuery から音声の長さを取得する
   Future<Duration> audioQueryToAudioDuration({
     required String query,
-    required int styleId,
     bool enableInterrogativeUpspeak = true,
   }) async {
     final receivePort = ReceivePort();
     _sendPort.send({
       'method': 'audioQueryToAudioDuration',
       'query': query,
-      'styleId': styleId,
       'enableInterrogativeUpspeak': enableInterrogativeUpspeak,
       'sendPort': receivePort.sendPort,
     });
@@ -287,12 +284,10 @@ String _inferPitchAndLength({required String accentPhrases, required int styleId
 
 Duration _audioQueryToAudioDuration({
   required String query,
-  required int styleId,
   bool enableInterrogativeUpspeak = true,
 }) {
   return FFIBridge.instance.audioQueryToAudioDuration(
     query,
-    styleId: styleId,
     enableInterrogativeUpspeak: enableInterrogativeUpspeak,
   );
 }

@@ -16,7 +16,7 @@ class VoicevoxFlutter {
 
   /// voicevox_flutterを起動する
   ///
-  /// [openJTalkDictDir] OpenJtalkの辞書フォルダ。パッケージからは your_app/assets にアクセスできないので別の場所にコピーする必要がある
+  /// [openJTalkDictDir] OpenJtalkの辞書フォルダ。パッケージからは your_app/assets にアクセスできないので、別の場所にコピーする必要があります。
   Future<void> initialize({required Directory openJTalkDictDir}) async {
     _isolatedVoicevox = ThreadIsolator();
     await _isolatedVoicevox.initialize(openJTalkDictDir: openJTalkDictDir);
@@ -60,16 +60,12 @@ class VoicevoxFlutter {
   /// AudioQueryから音声の長さを取得する
   ///
   /// [audioQuery] jsonフォーマットされたAudioQuery
-  ///
-  /// [styleId] スタイルID
   Future<Duration> audioQueryToAudioDuration({
     required String audioQuery,
-    required int styleId,
   }) async {
     await _initializationCompleter.future;
     return await _isolatedVoicevox.audioQueryToAudioDuration(
       query: audioQuery,
-      styleId: styleId,
     );
   }
 
@@ -131,8 +127,8 @@ class VoicevoxFlutter {
   }
 
   /// pitchとlengthを再生成する
-  /// 
-  /// - accent位置を変更したり、単語の区切りを変更した場合などに使う
+  ///
+  /// - accent位置を変更したり、単語の区切りを変更した場合などに使います。
   /// - VOICEVOX Engineのエンドポイント "mora_data" と同じ機能。のはず。
   ///
   /// [accentPhrases] AccentPhraseのリスト

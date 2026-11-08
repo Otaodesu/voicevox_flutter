@@ -100,11 +100,9 @@ class VoicevoxService {
   /// AudioQuery から音声の総尺（Duration）を取得する
   Future<Duration> audioQueryToAudioDuration({
     required String audioQuery,
-    required int styleId,
   }) async {
     return await _voicevox.audioQueryToAudioDuration(
       audioQuery: audioQuery,
-      styleId: styleId,
     );
   }
 
